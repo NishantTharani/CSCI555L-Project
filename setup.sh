@@ -11,6 +11,9 @@ CLIENT_IP=10.10.1.104
 
 # Hostname cannot reliably be used to identify cluster since it only seems to include the cluster for the master node
 
+# Get HWTYPE from user input
+read -p "Enter HWTYPE: " HWTYPE
+
 # Exit with an error if HWTYPE is not defined
 if [[ -z $HWTYPE ]]; then
   echo "Error: HWTYPE is not defined"
