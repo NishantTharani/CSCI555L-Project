@@ -142,10 +142,19 @@ if [[ $ROLE != "client" ]]; then
     sudo cp "$hadoop_env_file" "$hadoop_env_file.backup"
     sudo sed -i "/^# export JAVA_HOME=/c\export JAVA_HOME=$JAVA_HOME" "$hadoop_env_file"
 
+    # Set all the users to root
+    sudo sed -i "/^# export HDFS_NAMENODE_USER=hdfs/c\export HDFS_NAMENODE_USER=\"root\"\nexport HDFS_DATANODE_USER=\"root\"\nexport HDFS_SECONDARYNAMENODE_USER=\"root\"\nexport YARN_RESOURCEMANAGER_USER=\"root\"\nexport YARN_NODEMANAGER_USER=\"root\"" "$hadoop_env_file"
+
+
     # Set worker IP addresses
     hadoop_workers_file="/$DIRNAME/hadoop/etc/hadoop/workers"
     sudo cp "$hadoop_workers_file" "$hadoop_workers_file.backup"
     echo "$WORKER1_IP" | sudo tee "$hadoop_workers_file"
     echo "$WORKER2_IP" | sudo tee -a "$hadoop_workers_file"
     echo "$WORKER3_IP" | sudo tee -a "$hadoop_workers_file"
+
+    # Shortcut to the hadoop bin and sbin directories
+    HBIN=/$DIRNAME/hadoop/bin
+    HSBIN=/$DIRNAME/hadoop/sbin
 fi
+
