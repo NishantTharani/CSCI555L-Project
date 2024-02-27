@@ -21,7 +21,7 @@ request = pc.makeRequestRSpec()
 
 # 1 master, 3 workers, and 1 client to run the measurements from
 # HDFS default replication factor is 3, so 3 workers makes sense
-nodeCount = 4
+nodeCount = 5
 
 
 # Ubuntu 22.04
