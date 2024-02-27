@@ -9,6 +9,7 @@ Use `sudo` to run root commands.
 
 # Import the Portal object.
 import geni.portal as portal
+import geni.rspec.pg as rspec
 # Import the ProtoGENI library.
 # Emulab specific extensions.
 import geni.rspec.emulab as emulab
@@ -91,7 +92,7 @@ for i in range(nodeCount):
     # Create a node and add it to the request
     if i == 0:
         name = "master"
-    elif i == 3:
+    elif i == nodeCount-1:
         name = "client"
     else:
         name = "worker_" + str(i)
@@ -101,11 +102,14 @@ for i in range(nodeCount):
     # Add to lan
     if nodeCount > 1:
         iface = node.addInterface("eth1")
+        ip_address_suffix = str(100 + i)
+        iface.addAddress(rspec.IPv4Address("10.10.1." + ip_address_suffix, "255.255.255.0"))
         lan.addInterface(iface)
-        pass
     # Optional hardware type.
     if params.phystype != "":
         node.hardware_type = params.phystype
+        # Set an environment variable to the hardware type.
+        # node.addService(rspec.Execute(shell="bash", command="export HWTYPE=" + params.phystype))
         pass
     # Install and start X11 VNC. Calling this informs the Portal that you want a VNC
     # option in the node context menu to create a browser VNC client.
