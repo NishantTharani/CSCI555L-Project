@@ -42,56 +42,74 @@ fi
 # should contain the IP address of the interface enp1s0d1
 echo "IP Address of enp1s0d1: $OUR_IP"
 
+# Set our role based on the IP address
+if [[ $OUR_IP == $MASTER_IP ]]; then
+  ROLE="master"
+elif [[ $OUR_IP == $WORKER1_IP ]]; then
+  ROLE="worker1"
+elif [[ $OUR_IP == $WORKER2_IP ]]; then
+  ROLE="worker2"
+elif [[ $OUR_IP == $WORKER3_IP ]]; then
+  ROLE="worker3"
+elif [[ $OUR_IP == $CLIENT_IP ]]; then
+  ROLE="client"
+else
+  echo "Error: IP address $OUR_IP is not recognized"
+  exit 1
+fi
 
-sudo mkdir -p /$DIRNAME
-cd /$DIRNAME
 
-# Create a new filesystem using the remaining space on the system (boot) disk, at /DIRNAME
-# Create a new filesystem using the remaining space on the system (boot) disk, at /DIRNAME
-# The below seems unnecessary for now as we seem to be getting 68G anyway even though the docs say we should only be getting 16G?
-# sudo /usr/local/etc/emulab/mkextrafs.pl /$DIRNAME
+if [[ $ROLE != "client" ]]; then
+    sudo mkdir -p /$DIRNAME
+    cd /$DIRNAME
 
-# Install java
-sudo apt-get update
-# Sleep for a bit to let apt-get get its act together
-sleep 2
-sudo apt-get install openjdk-8-jdk -y
+    # Create a new filesystem using the remaining space on the system (boot) disk, at /DIRNAME
+    # Create a new filesystem using the remaining space on the system (boot) disk, at /DIRNAME
+    # The below seems unnecessary for now as we seem to be getting 68G anyway even though the docs say we should only be getting 16G?
+    # sudo /usr/local/etc/emulab/mkextrafs.pl /$DIRNAME
 
-# Download hadoop
-sudo wget https://dlcdn.apache.org/hadoop/common/hadoop-3.3.6/hadoop-3.3.6.tar.gz
-sudo tar zvxf hadoop-3.3.6.tar.gz
-sudo rm hadoop-3.3.6.tar.gz
+    # Install java
+    sudo apt-get update
+    # Sleep for a bit to let apt-get get its act together
+    sleep 2
+    sudo apt-get install openjdk-8-jdk -y
 
-# Update hadoop configuration
-# Define the file path to core-site.xml
-file_path="/data/hadoop-3.3.6/etc/hadoop/core-site.xml"
+    # Download hadoop
+    sudo wget https://dlcdn.apache.org/hadoop/common/hadoop-3.3.6/hadoop-3.3.6.tar.gz
+    sudo tar zvxf hadoop-3.3.6.tar.gz
+    sudo rm hadoop-3.3.6.tar.gz
 
-# Backup the original file
-cp "$file_path" "$file_path.backup"
+    # Update hadoop configuration
+    # Define the file path to core-site.xml
+    file_path="/data/hadoop-3.3.6/etc/hadoop/core-site.xml"
 
-# Write the new configuration
-# If this doesn't work then try using <name>fs.default.name</name> instead?
-echo '<?xml version="1.0" encoding="UTF-8"?>
-<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
-<!--
-  Licensed under the Apache License, Version 2.0 (the "License");
-  you may not use this file except in compliance with the License.
-  You may obtain a copy of the License at
+    # Backup the original file
+    sudo cp "$file_path" "$file_path.backup"
 
-    http://www.apache.org/licenses/LICENSE-2.0
+    # Write the new configuration
+    # If this doesn't work then try using <name>fs.default.name</name> instead?
+    sudo echo '<?xml version="1.0" encoding="UTF-8"?>
+    <?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+    <!--
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
 
-  Unless required by applicable law or agreed to in writing, software
-  distributed under the License is distributed on an "AS IS" BASIS,
-  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  See the License for the specific language governing permissions and
-  limitations under the License. See accompanying LICENSE file.
--->
+        http://www.apache.org/licenses/LICENSE-2.0
 
-<!-- Put site-specific property overrides in this file. -->
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License. See accompanying LICENSE file.
+    -->
 
-<configuration>
-<property>
-<name>fs.defaultFS</name>
-<value>hdfs://'$MASTER_IP':9000</value>
-</property>
-</configuration>' > "$file_path"
+    <!-- Put site-specific property overrides in this file. -->
+
+    <configuration>
+    <property>
+    <name>fs.defaultFS</name>
+    <value>hdfs://'$MASTER_IP':9000</value>
+    </property>
+    </configuration>' > "$file_path"
+fi
