@@ -141,4 +141,11 @@ if [[ $ROLE != "client" ]]; then
     hadoop_env_file="/$DIRNAME/hadoop/etc/hadoop/hadoop-env.sh"
     sudo cp "$hadoop_env_file" "$hadoop_env_file.backup"
     sudo sed -i "/^# export JAVA_HOME=/c\export JAVA_HOME=$JAVA_HOME" "$hadoop_env_file"
+
+    # Set worker IP addresses
+    hadoop_workers_file="/$DIRNAME/hadoop/etc/hadoop/workers"
+    sudo cp "$hadoop_workers_file" "$hadoop_workers_file.backup"
+    echo "$WORKER1_IP" | sudo tee "$hadoop_workers_file"
+    echo "$WORKER2_IP" | sudo tee -a "$hadoop_workers_file"
+    echo "$WORKER3_IP" | sudo tee -a "$hadoop_workers_file"
 fi
