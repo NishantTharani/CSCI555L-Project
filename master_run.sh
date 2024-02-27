@@ -1,3 +1,7 @@
+DIRNAME=data
+HBIN=/$DIRNAME/hadoop/bin
+HSBIN=/$DIRNAME/hadoop/sbin
+
 # Format the namenode
 sudo $HBIN/hdfs namenode -format
 
