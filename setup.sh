@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Variables
 # Directory name that we will use
 DIRNAME=data
