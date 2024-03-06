@@ -90,6 +90,7 @@ if sameSwitch:
 # Process nodes, adding to link or lan.
 for i in range(nodeCount):
     # Create a node and add it to the request
+    name = ''
     if i == 0:
         name = "master"
     elif i == nodeCount-1:
@@ -120,6 +121,8 @@ for i in range(nodeCount):
         node.startVNC()
         pass
     pass
+
+    node.addService(pg.Execute(shell="sh", command="/local/repository/test.sh"))
 
 # Print the RSpec to the enclosing page.
 pc.printRequestRSpec(request)
