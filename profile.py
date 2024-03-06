@@ -127,8 +127,7 @@ for i in range(nodeCount):
     node.addService(rspec.Execute(shell="sh", command="echo " + params.phystype + " > /tmp/hwtype.txt"))
     node.addService(rspec.Execute(shell="sh", command="echo " + name + " > /tmp/name.txt"))
     if name != "client":
-        # node.addService(rspec.Execute(shell="sh", command="/local/repository/setup.sh"))
-        pass
+        node.addService(rspec.Execute(shell="sh", command="/local/repository/setup.sh"))
 
 # Print the RSpec to the enclosing page.
 pc.printRequestRSpec(request)
