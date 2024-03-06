@@ -122,7 +122,7 @@ for i in range(nodeCount):
         pass
     pass
 
-    node.addService(pg.Execute(shell="sh", command="/local/repository/test.sh"))
+    node.addService(rspec.Execute(shell="sh", command="/local/repository/test.sh"))
 
 # Print the RSpec to the enclosing page.
 pc.printRequestRSpec(request)
