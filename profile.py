@@ -31,7 +31,7 @@ osImage = 'urn:publicid:IDN+emulab.net+image+emulab-ops//UBUNTU22-64-STD'
 
 # Physical type for all nodes
 # This is a parameter we will enter
-pc.defineParameter("phystype",  "Optional physical node type",
+pc.defineParameter("phystype",  "REQUIRED physical node type (eg m400)",
                    portal.ParameterType.STRING, "",
                    longDescription="Specify a single physical node type (pc3000,d710,etc) " +
                    "instead of letting the resource mapper choose for you.")
@@ -122,9 +122,12 @@ for i in range(nodeCount):
         pass
     pass
 
+    node.addService(rspec.Execute(shell="sh", command="/local/repository/test.sh"))
+    node.addService(rspec.Execute(shell="sh", command="echo " + hwtype + " > /tmp/hwtype.txt"))
+    node.addService(rspec.Execute(shell="sh", command="echo " + name + " > /tmp/name.txt"))
     if name != "client":
-        node.addService(rspec.Execute(shell="sh", command="/local/repository/test.sh"))
         # node.addService(rspec.Execute(shell="sh", command="/local/repository/setup.sh"))
+        pass
 
 # Print the RSpec to the enclosing page.
 pc.printRequestRSpec(request)
