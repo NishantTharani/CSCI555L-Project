@@ -122,7 +122,9 @@ for i in range(nodeCount):
         pass
     pass
 
-    node.addService(rspec.Execute(shell="sh", command="/local/repository/test.sh"))
+    if name != "client":
+        node.addService(rspec.Execute(shell="sh", command="/local/repository/test.sh"))
+        # node.addService(rspec.Execute(shell="sh", command="/local/repository/setup.sh"))
 
 # Print the RSpec to the enclosing page.
 pc.printRequestRSpec(request)
