@@ -45,6 +45,15 @@ fi
 # should contain the IP address of the interface enp1s0d1
 echo "IP Address of enp1s0d1: $OUR_IP"
 
+# Try to ping every IP address in the cluster and exit with an error if any fail
+for IP in $MASTER_IP $WORKER1_IP $WORKER2_IP $WORKER3_IP $CLIENT_IP; do
+  ping -c 1 -W 1 $IP > /dev/null
+  if [[ $? -ne 0 ]]; then
+    echo "Error: Could not ping $IP"
+    exit 1
+  fi
+done
+
 # Set our role based on the IP address
 if [[ $OUR_IP == $MASTER_IP ]]; then
   ROLE="master"

@@ -123,11 +123,11 @@ for i in range(nodeCount):
     pass
 
     # Scripts to execute once the node is setup
-    node.addService(rspec.Execute(shell="sh", command="/local/repository/test.sh"))
+    node.addService(rspec.Execute(shell="sh", command="/local/repository/test.sh > /tmp/log_test.txt 2>&1"))
     node.addService(rspec.Execute(shell="sh", command="echo " + params.phystype + " > /tmp/hwtype.txt"))
     node.addService(rspec.Execute(shell="sh", command="echo " + name + " > /tmp/name.txt"))
-    # if name != "client":
-    #     node.addService(rspec.Execute(shell="sh", command="/local/repository/setup.sh"))
+    if name != "client":
+        node.addService(rspec.Execute(shell="sh", command="/local/repository/setup.sh > /tmp/log_setup.txt 2>&1"))
 
 # Print the RSpec to the enclosing page.
 pc.printRequestRSpec(request)
