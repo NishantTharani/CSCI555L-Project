@@ -170,3 +170,7 @@ HBIN=/$DIRNAME/hadoop/bin
 HSBIN=/$DIRNAME/hadoop/sbin
 # fi
 
+# Add bin and sbin directories to PATH for user and sudo
+BASHRC="/users/ntharani/.bashrc"
+echo 'export PATH=/data/hadoop/bin:/data/hadoop/sbin:$PATH' >> "$BASHRC"
+echo "alias sudo='sudo env PATH=\$PATH'" >> "$BASHRC"
