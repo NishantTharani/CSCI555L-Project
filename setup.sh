@@ -174,3 +174,28 @@ HSBIN=/$DIRNAME/hadoop/sbin
 BASHRC="/users/ntharani/.bashrc"
 echo 'export PATH=/data/hadoop/bin:/data/hadoop/sbin:$PATH' >> "$BASHRC"
 echo "alias sudo='sudo env PATH=\$PATH'" >> "$BASHRC"
+
+# Add the hadoop bin and sbin directories to the PATH for the root user
+# Path to a temporary file
+TEMP_SUDOERS=$(mktemp)
+
+# Avoiding locale issues by ensuring C locale
+export LC_ALL=C
+
+# Check if secure_path exists and replace it or add it
+if grep -q "^Defaults[[:space:]]secure_path=" /etc/sudoers; then
+    # Secure_path exists, so replace it
+    sed 's|^Defaults[[:space:]]secure_path=.*|Defaults    secure_path="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/data/hadoop/bin"|' /etc/sudoers > "$TEMP_SUDOERS"
+else
+    # Secure_path doesn't exist, so append it
+    cp /etc/sudoers "$TEMP_SUDOERS"
+    echo 'Defaults    secure_path="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/data/hadoop/bin"' >> "$TEMP_SUDOERS"
+fi
+
+# Update the sudoers file safely using visudo
+visudo -c -f "$TEMP_SUDOERS" && cp "$TEMP_SUDOERS" /etc/sudoers
+
+# Clean up the temporary file
+rm -f "$TEMP_SUDOERS"
+
+echo "sudoers has been updated."

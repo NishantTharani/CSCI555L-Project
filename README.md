@@ -13,3 +13,5 @@ Then HDFS will be running. Go to the master's hostname checkhealth page eg http:
 Maybe need to `source ~/.bashrc` on the client
 
 You can then run commands on the client eg `sudo hdfs dfs -mkdir /hadoop`
+
+Copy a benchmark from `client_benchmarks` to the home folder on the client, and run it.
