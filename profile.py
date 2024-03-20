@@ -20,10 +20,6 @@ pc = portal.Context()
 # Create a Request object to start building the RSpec.
 request = pc.makeRequestRSpec()
 
-# 1 master, 3 workers, and 1 client to run the measurements from
-# HDFS default replication factor is 3, so 3 workers makes sense
-nodeCount = 5
-
 
 # Ubuntu 22.04
 # osImage = ('urn:publicid:IDN+emulab.net+image+emulab-ops//UBUNTU22-64-STD', 'UBUNTU 22.04')
@@ -35,6 +31,14 @@ pc.defineParameter("phystype",  "REQUIRED physical node type (eg m400)",
                    portal.ParameterType.STRING, "",
                    longDescription="Specify a single physical node type (pc3000,d710,etc) " +
                    "instead of letting the resource mapper choose for you.")
+
+pc.defineParameter("workercount",  "REQUIRED number of workers (eg 3)",
+                   portal.ParameterType.STRING, "",
+                   longDescription="Specify the number of worker nodes")
+
+pc.defineParameter("clientcount",  "REQUIRED number of clients (eg 1)",
+                   portal.ParameterType.STRING, "",
+                   longDescription="Specify the number of client nodes")
 
 # Start VNC, why not
 # "There will be a menu option in the node context menu to start a browser based VNC client"
@@ -87,16 +91,20 @@ if sameSwitch:
         lan.bandwidth = params.linkSpeed
 """
 
+worker_count = int(params.workercount)
+client_count = int(params.clientcount)
+nodeCount = worker_count + client_count + 1
+
 # Process nodes, adding to link or lan.
 for i in range(nodeCount):
     # Create a node and add it to the request
     name = ''
     if i == 0:
         name = "master"
-    elif i == nodeCount-1:
-        name = "client"
-    else:
+    elif i <= worker_count:
         name = "worker_" + str(i)
+    else:
+        name = "client_" + str(i - worker_count)
     node = request.RawPC(name)
     node.disk_image = osImage
 
