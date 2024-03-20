@@ -33,11 +33,11 @@ pc.defineParameter("phystype",  "REQUIRED physical node type (eg m400)",
                    "instead of letting the resource mapper choose for you.")
 
 pc.defineParameter("workercount",  "REQUIRED number of workers (eg 3)",
-                   portal.ParameterType.STRING, "",
+                   portal.ParameterType.INTEGER, 0,
                    longDescription="Specify the number of worker nodes")
 
 pc.defineParameter("clientcount",  "REQUIRED number of clients (eg 1)",
-                   portal.ParameterType.STRING, "",
+                   portal.ParameterType.INTEGER, 0,
                    longDescription="Specify the number of client nodes")
 
 # Start VNC, why not
@@ -91,8 +91,8 @@ if sameSwitch:
         lan.bandwidth = params.linkSpeed
 """
 
-worker_count = int(params.workercount)
-client_count = int(params.clientcount)
+worker_count = params.workercount
+client_count = params.clientcount
 nodeCount = worker_count + client_count + 1
 
 # Process nodes, adding to link or lan.
