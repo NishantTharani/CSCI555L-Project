@@ -6,7 +6,7 @@ generate_random_data() {
 
 # Read parameters from user input
 read -p "Enter the number of times to write: " WRITE_COUNT
-read -p "Enter the size of each write: " WRITE_SIZE
+read -p "Enter the size of each write (in MB): " WRITE_SIZE
 
 # Read the name of this node from /tmp/name.txt
 node_name=$(cat /tmp/name.txt)
@@ -20,7 +20,7 @@ sudo hdfs dfs -touchz $file_path
 # We're appending here - HDFS can only append
 generate_random_data $WRITE_SIZE
 start_time=$(date +%s%3N)
-for ((i=0; i<=$WRITE_COUNT; i++)); do
+for ((i=0; i<$(($WRITE_COUNT)); i++)); do
   # If i is a multiple of 10, print progress
   if [[ $((i % 10)) == 0 ]]; then
     echo "===== Write $i out of $WRITE_COUNT"

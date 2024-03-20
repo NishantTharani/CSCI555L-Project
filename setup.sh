@@ -23,15 +23,6 @@ if [[ -z $HWTYPE ]]; then
   exit 1
 fi
 
-# Set cluster name based on HWTYPE
-if [[ $HWTYPE == "m400" ]]; then
-  CLUSTER="UTAH"
-else 
-  # Exit with error if HWTYPE is not recognized
-  echo "Error: HWTYPE $HWTYPE is not recognized"
-  exit 1
-fi
-
 # Try to get the IP address of the interface named enp1s0d1
 OUR_IP=$(ifconfig enp1s0d1 | grep 'inet ' | awk '{print $2}')
 
