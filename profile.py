@@ -33,11 +33,11 @@ pc.defineParameter("phystype",  "REQUIRED physical node type (eg m400)",
                    "instead of letting the resource mapper choose for you.")
 
 pc.defineParameter("workercount",  "REQUIRED number of workers (eg 3)",
-                   portal.ParameterType.INTEGER, 0,
+                   portal.ParameterType.INTEGER, 3,
                    longDescription="Specify the number of worker nodes")
 
 pc.defineParameter("clientcount",  "REQUIRED number of clients (eg 1)",
-                   portal.ParameterType.INTEGER, 0,
+                   portal.ParameterType.INTEGER, 1,
                    longDescription="Specify the number of client nodes")
 
 # Start VNC, why not
