@@ -45,24 +45,6 @@ for IP in $MASTER_IP $WORKER1_IP $WORKER2_IP $WORKER3_IP $CLIENT_IP; do
   fi
 done
 
-# Set our role based on the IP address
-if [[ $OUR_IP == $MASTER_IP ]]; then
-  ROLE="master"
-elif [[ $OUR_IP == $WORKER1_IP ]]; then
-  ROLE="worker1"
-elif [[ $OUR_IP == $WORKER2_IP ]]; then
-  ROLE="worker2"
-elif [[ $OUR_IP == $WORKER3_IP ]]; then
-  ROLE="worker3"
-elif [[ $OUR_IP == $CLIENT_IP ]]; then
-  ROLE="client"
-else
-  echo "Error: IP address $OUR_IP is not recognized"
-  exit 1
-fi
-
-
-# if [[ $ROLE != "client" ]]; then
 sudo mkdir -p /$DIRNAME
 cd /$DIRNAME
 
