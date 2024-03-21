@@ -23,19 +23,6 @@ if [[ -z $HWTYPE ]]; then
   exit 1
 fi
 
-# Try to get the IP address of the interface named enp1s0d1
-OUR_IP=$(ifconfig enp1s0d1 | grep 'inet ' | awk '{print $2}')
-
-# Check if the OUR_IP variable is empty
-if [[ -z $OUR_IP ]]; then
-  echo "Error: Interface enp1s0d1 does not have an IP address or does not exist"
-  exit 1
-fi
-
-# If the script reaches this point, the ip_address variable
-# should contain the IP address of the interface enp1s0d1
-echo "IP Address of enp1s0d1: $OUR_IP"
-
 # Try to ping every IP address in the cluster and exit with an error if any fail
 for IP in $MASTER_IP $WORKER1_IP $WORKER2_IP $WORKER3_IP $CLIENT_IP; do
   ping -c 1 -W 1 $IP > /dev/null
