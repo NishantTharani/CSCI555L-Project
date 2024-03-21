@@ -1,3 +1,5 @@
+#!/bin/bash
+
 generate_random_data() {
   rm -f temp_file
   BS=$((1048576*$1))
