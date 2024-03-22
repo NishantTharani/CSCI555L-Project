@@ -134,6 +134,8 @@ for i in range(nodeCount):
     node.addService(rspec.Execute(shell="sh", command="/local/repository/test.sh > /tmp/log_test.txt 2>&1"))
     node.addService(rspec.Execute(shell="sh", command="echo " + params.phystype + " > /tmp/hwtype.txt"))
     node.addService(rspec.Execute(shell="sh", command="echo " + name + " > /tmp/name.txt"))
+    node.addService(rspec.Execute(shell="sh", command="echo " + worker_count + " > /tmp/node_counts.txt"))
+    node.addService(rspec.Execute(shell="sh", command="echo " + client_count + " >> /tmp/node_counts.txt"))
     node.addService(rspec.Execute(shell="sh", command="sudo /local/repository/setup.sh > /tmp/log_setup.txt 2>&1"))
 
 # Print the RSpec to the enclosing page.
