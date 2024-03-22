@@ -170,7 +170,7 @@ for ((i=1; i<=NUM_WORKERS; i++)); do
   if ((i == 1)); then
     echo "$ip" | sudo tee "$hadoop_workers_file"
   else
-    echo "$ip" | sudo tee -a
+    echo "$ip" | sudo tee -a "$hadoop_workers_file"
   fi
 done
 
