@@ -4,12 +4,51 @@
 # Directory name that we will use
 DIRNAME=data
 
-# IP Addresses should be hardcoded by the profile
+# Read the number of worker nodes and client nodes to know the IP addresses
+NUM_WORKERS=$(head -n 1 /tmp/node_counts.txt)
+NUM_CLIENTS=$(tail -n 1 /tmp/node_counts.txt)
+
+# Assign IP addresses based on number workers/clients.
+# Observe worker IPs are in the range [101, 101+num_workers). 
+# Clients are [101+num_workers, 101+num_workers+num_clients)
+ip_list=()
+
+# Add Master IP
 MASTER_IP=10.10.1.100
-WORKER1_IP=10.10.1.101
-WORKER2_IP=10.10.1.102
-WORKER3_IP=10.10.1.103
-CLIENT_IP=10.10.1.104
+ip_list+=("$MASTER_IP")
+
+# Add Worker IPs
+for ((i=1; i<=NUM_WORKERS; i++))
+  ip_list+=("10.10.1.$((100+i))")
+done
+
+# Add Client IPs
+for ((i=1; i<=NUM_CLIENTS; i++))
+  ip_list+=("10.10.1.$((100 + $NUM_WORKERS + i))")
+done
+
+# Sanity Check -- Echo ip_list and check if we at least have the right number of nodes/last node
+echo "IP list:"
+for ip in "${ip_list[@]}"; do
+  echo "$ip"
+done
+echo "Number of workers: $NUM_WORKERS"
+echo "Number of clients: $NUM_CLIENTS"
+
+last_index=$(( ${#ip_list[@]} - 1 ))
+last_element="${ip_list[last_index]}"
+
+if ["$last_element" != "10.10.1.((100+$NUM_WORKERS+$NUM_CLIENTS))"]; then
+  echo "dynamic IP assignment failed."
+  exit 2
+fi
+
+# IP Addresses should be hardcoded by the profile
+# MASTER_IP=10.10.1.100
+# WORKER1_IP=10.10.1.101
+# WORKER2_IP=10.10.1.102
+# WORKER3_IP=10.10.1.103
+# CLIENT_IP=10.10.1.104
 
 # Hostname cannot reliably be used to identify cluster since it only seems to include the cluster for the master node
 
@@ -24,7 +63,8 @@ if [[ -z $HWTYPE ]]; then
 fi
 
 # Try to ping every IP address in the cluster and exit with an error if any fail
-for IP in $MASTER_IP $WORKER1_IP $WORKER2_IP $WORKER3_IP $CLIENT_IP; do
+# for IP in $MASTER_IP $WORKER1_IP $WORKER2_IP $WORKER3_IP $CLIENT_IP; do
+for IP in"${ip_list[@]}"; do
   ping -c 1 -W 1 $IP > /dev/null
   if [[ $? -ne 0 ]]; then
     echo "Error: Could not ping $IP"
@@ -121,9 +161,18 @@ sudo sed -i "/^# export HDFS_NAMENODE_USER=hdfs/c\export HDFS_NAMENODE_USER=\"ro
 # Set worker IP addresses
 hadoop_workers_file="/$DIRNAME/hadoop/etc/hadoop/workers"
 sudo cp "$hadoop_workers_file" "$hadoop_workers_file.backup"
-echo "$WORKER1_IP" | sudo tee "$hadoop_workers_file"
-echo "$WORKER2_IP" | sudo tee -a "$hadoop_workers_file"
-echo "$WORKER3_IP" | sudo tee -a "$hadoop_workers_file"
+# echo "$WORKER1_IP" | sudo tee "$hadoop_workers_file"
+# echo "$WORKER2_IP" | sudo tee -a "$hadoop_workers_file"
+# echo "$WORKER3_IP" | sudo tee -a "$hadoop_workers_file"
+# Start from 1 to exclude the MASTER_IP
+for ((i=1; i<=NUM_WORKERS; i++)); do
+  ip="${ip_list[i]}"
+  if ((i == 1)); then
+    echo "$ip" | sudo tee "$hadoop_workers_file"
+  else
+    echo "$ip" | sudo tee -a "$hadoop_workers_file"
+  fi
+done
 
 # Shortcut to the hadoop bin and sbin directories
 HBIN=/$DIRNAME/hadoop/bin
