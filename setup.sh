@@ -43,7 +43,11 @@ echo "Number of clients: $NUM_CLIENTS"
 last_index=$(( ${#IP_LIST[@]} - 1 ))
 last_element="${IP_LIST[last_index]}"
 
-if ["$last_element" != "10.10.1.((100+$NUM_WORKERS+$NUM_CLIENTS))"]; then
+# Perform arithmetic operation outside of the string
+expected_ip=$((100 + NUM_WORKERS + NUM_CLIENTS))
+expected_ip="10.10.1.$expected_ip"
+
+if [ "$last_element" != "$expected_ip" ]; then
   echo "dynamic IP assignment failed."
   exit 2
 fi
@@ -69,7 +73,7 @@ fi
 
 # Try to ping every IP address in the cluster and exit with an error if any fail
 # for IP in $MASTER_IP $WORKER1_IP $WORKER2_IP $WORKER3_IP $CLIENT_IP; do
-for IP in"${IP_LIST[@]}"; do
+for IP in "${IP_LIST[@]}"; do
   ping -c 1 -W 1 $IP > /dev/null
   if [[ $? -ne 0 ]]; then
     echo "Error: Could not ping $IP"
