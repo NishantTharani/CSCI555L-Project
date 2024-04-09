@@ -96,7 +96,7 @@ sleep 2
 sudo apt-get install openjdk-8-jdk -y
 
 # Download hadoop
-sudo wget https://dlcdn.apache.org/hadoop/common/hadoop-3.3.6/hadoop-3.3.6.tar.gz
+sudo wget https://dlcdn.apache.org/hadoop/common/hadoop-3.3.6/hadoop-3.3.6.tar.gz -q
 sudo tar zxf hadoop-3.3.6.tar.gz
 sudo rm hadoop-3.3.6.tar.gz
 sudo mv hadoop-3.3.6 hadoop
