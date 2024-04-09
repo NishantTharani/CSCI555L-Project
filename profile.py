@@ -41,11 +41,9 @@ pc.defineParameter("clientcount",  "REQUIRED number of clients (eg 1)",
                    longDescription="Specify the number of client nodes")
 
 pc.defineParameter("sameSwitch",  "Same Switch", portal.ParameterType.BOOLEAN, True,
-                    advanced=True,
                     longDescription="Require all nodes to be on the same switch. This can make it impossible for your experiment to map.")
 
 pc.defineParameter("bestEffort",  "Best Effort", portal.ParameterType.BOOLEAN, False,
-                    advanced=True,
                     longDescription="For very large lans, you might get an error saying 'not enough bandwidth.' " +
                     "This options tells the resource mapper to ignore bandwidth and assume you know what you " +
                     "are doing, just give me the lan I ask for (if enough nodes are available). This reduces replicability.")
