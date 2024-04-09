@@ -40,6 +40,10 @@ pc.defineParameter("clientcount",  "REQUIRED number of clients (eg 1)",
                    portal.ParameterType.INTEGER, 1,
                    longDescription="Specify the number of client nodes")
 
+pc.defineParameter("sameSwitch",  "Same Switch", portal.ParameterType.BOOLEAN, True,
+                    advanced=True,
+                    longDescription="Require all nodes to be on the same switch. This can make it impossible for your experiment to map.")
+
 # Start VNC, why not
 # "There will be a menu option in the node context menu to start a browser based VNC client"
 startVNC = True
@@ -63,10 +67,6 @@ pc.defineParameter("bestEffort",  "Best Effort", portal.ParameterType.BOOLEAN, F
                     "are doing, just give me the lan I ask for (if enough nodes are available).")
 """
 
-# Require all nodes on the same switch, for replicability
-# Note that this option can make it impossible for your experiment to map.
-sameSwitch = True
-
 # Retrieve the values the user specifies during instantiation.
 # This is just the hardware type
 params = pc.bindParameters()
@@ -81,7 +81,7 @@ pc.verifyParameters()
 
 # Create link/lan.
 lan = request.LAN()
-if sameSwitch:
+if params.sameSwitch:
 	lan.setNoInterSwitchLinks()
 
 """ This is for the currently unused option to request a set bandwidth
