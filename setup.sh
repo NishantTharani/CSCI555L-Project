@@ -90,10 +90,10 @@ cd /$DIRNAME
 # sudo /usr/local/etc/emulab/mkextrafs.pl /$DIRNAME
 
 # Install java
-sudo apt-get update
+sudo apt-get update -q
 # Sleep for a bit to let apt-get get its act together
 sleep 2
-sudo apt-get install openjdk-8-jdk -y
+sudo apt-get install openjdk-8-jdk -y -q
 
 # Download hadoop
 sudo wget https://dlcdn.apache.org/hadoop/common/hadoop-3.3.6/hadoop-3.3.6.tar.gz -q
