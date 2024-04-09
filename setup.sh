@@ -5,33 +5,38 @@
 DIRNAME=data
 
 # Read the number of worker nodes and client nodes to know the IP addresses
-NUM_WORKERS=$(head -n 1 /tmp/node_counts.txt)
-NUM_CLIENTS=$(tail -n 1 /tmp/node_counts.txt)
+NUM_WORKERS=$(cat /tmp/worker_count.txt)
+NUM_CLIENTS=$(cat /tmp/client_count.txt)
 
 # Assign IP addresses based on number workers/clients.
 # Observe worker IPs are in the range [101, 101+num_workers). 
 # Clients are [101+num_workers, 101+num_workers+num_clients)
-ip_list=()
+IP_LIST=()
 
 # Add Master IP
 MASTER_IP=10.10.1.100
-ip_list+=("$MASTER_IP")
+IP_LIST+=("$MASTER_IP")
 
 # Add Worker IPs
 for ((i=1; i<=NUM_WORKERS; i++))
-  ip_list+=("10.10.1.$((100+i))")
+  IP="10.10.1.$((100+i))"
+  IP_LIST+=("$IP")
 done
 
 # Add Client IPs
 for ((i=1; i<=NUM_CLIENTS; i++))
-  ip_list+=("10.10.1.$((100 + $NUM_WORKERS + i))")
+  IP="10.10.1.$((100+NUM_WORKERS+i))"
+  IP_LIST+=("$IP")
 done
 
 # Sanity Check -- Echo ip_list and check if we at least have the right number of nodes/last node
+
 echo "IP list:"
 for ip in "${ip_list[@]}"; do
   echo "$ip"
 done
+
+# Check if we have the right number of nodes
 echo "Number of workers: $NUM_WORKERS"
 echo "Number of clients: $NUM_CLIENTS"
 
@@ -64,7 +69,7 @@ fi
 
 # Try to ping every IP address in the cluster and exit with an error if any fail
 # for IP in $MASTER_IP $WORKER1_IP $WORKER2_IP $WORKER3_IP $CLIENT_IP; do
-for IP in"${ip_list[@]}"; do
+for IP in"${IP_LIST[@]}"; do
   ping -c 1 -W 1 $IP > /dev/null
   if [[ $? -ne 0 ]]; then
     echo "Error: Could not ping $IP"
