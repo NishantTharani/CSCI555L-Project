@@ -29,10 +29,10 @@ for ((i=1; i<=NUM_CLIENTS; i++)); do
   IP_LIST+=("$IP")
 done
 
-# Sanity Check -- Echo ip_list and check if we at least have the right number of nodes/last node
+# Sanity Check -- Echo IP_LIST and check if we at least have the right number of nodes/last node
 
 echo "IP list:"
-for ip in "${ip_list[@]}"; do
+for ip in "${IP_LIST[@]}"; do
   echo "$ip"
 done
 
@@ -40,8 +40,8 @@ done
 echo "Number of workers: $NUM_WORKERS"
 echo "Number of clients: $NUM_CLIENTS"
 
-last_index=$(( ${#ip_list[@]} - 1 ))
-last_element="${ip_list[last_index]}"
+last_index=$(( ${#IP_LIST[@]} - 1 ))
+last_element="${IP_LIST[last_index]}"
 
 if ["$last_element" != "10.10.1.((100+$NUM_WORKERS+$NUM_CLIENTS))"]; then
   echo "dynamic IP assignment failed."
@@ -171,7 +171,7 @@ sudo cp "$hadoop_workers_file" "$hadoop_workers_file.backup"
 # echo "$WORKER3_IP" | sudo tee -a "$hadoop_workers_file"
 # Start from 1 to exclude the MASTER_IP
 for ((i=1; i<=NUM_WORKERS; i++)); do
-  ip="${ip_list[i]}"
+  ip="${IP_LIST[i]}"
   if ((i == 1)); then
     echo "$ip" | sudo tee "$hadoop_workers_file"
   else
