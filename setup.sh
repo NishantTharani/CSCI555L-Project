@@ -174,14 +174,10 @@ sudo cp "$hadoop_workers_file" "$hadoop_workers_file.backup"
 # echo "$WORKER2_IP" | sudo tee -a "$hadoop_workers_file"
 # echo "$WORKER3_IP" | sudo tee -a "$hadoop_workers_file"
 # Start from 1 to exclude the MASTER_IP
-for ((i=0; i<NUM_WORKERS; i++)); do
-  ip="${WORKER_IP_LIST[i]}"
-  if ((i == 1)); then
-    echo "$ip" | sudo tee "$hadoop_workers_file"
-  else
-    echo "$ip" | sudo tee -a "$hadoop_workers_file"
-  fi
+for ip in "${WORKER_IP_LIST[@]}"; do
+  echo "$ip" | sudo tee -a "$hadoop_workers_file"
 done
+
 
 # Shortcut to the hadoop bin and sbin directories
 HBIN=/$DIRNAME/hadoop/bin
