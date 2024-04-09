@@ -18,13 +18,13 @@ MASTER_IP=10.10.1.100
 IP_LIST+=("$MASTER_IP")
 
 # Add Worker IPs
-for ((i=1; i<=NUM_WORKERS; i++))
+for ((i=1; i<=NUM_WORKERS; i++)); do
   IP="10.10.1.$((100+i))"
   IP_LIST+=("$IP")
 done
 
 # Add Client IPs
-for ((i=1; i<=NUM_CLIENTS; i++))
+for ((i=1; i<=NUM_CLIENTS; i++)); do
   IP="10.10.1.$((100+NUM_WORKERS+i))"
   IP_LIST+=("$IP")
 done
