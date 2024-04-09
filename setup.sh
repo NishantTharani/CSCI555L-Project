@@ -11,53 +11,62 @@ NUM_CLIENTS=$(cat /tmp/client_count.txt)
 # Assign IP addresses based on number workers/clients.
 # Observe worker IPs are in the range [101, 101+num_workers). 
 # Clients are [101+num_workers, 101+num_workers+num_clients)
-IP_LIST=()
 
-# Add Master IP
+# If master IP cannot be pinged, exit with an error
 MASTER_IP=10.10.1.100
-IP_LIST+=("$MASTER_IP")
 
-# Add Worker IPs
+ping -c 1 -W 1 $MASTER_IP > /dev/null
+if [[ $? -ne 0 ]]; then
+  echo "Error: Could not ping $MASTER_IP"
+  exit 1
+fi
+
+# Check which of the expected worker IPs are pingable
+EXPECTED_WORKER_IP_LIST=()
 for ((i=1; i<=NUM_WORKERS; i++)); do
   IP="10.10.1.$((100+i))"
-  IP_LIST+=("$IP")
+  EXPECTED_WORKER_IP_LIST+=("$IP")
 done
 
-# Add Client IPs
-for ((i=1; i<=NUM_CLIENTS; i++)); do
-  IP="10.10.1.$((100+NUM_WORKERS+i))"
-  IP_LIST+=("$IP")
+WORKER_IP_LIST=()
+
+for ip in "${EXPECTED_WORKER_IP_LIST[@]}"; do
+  ping -c 1 -W 1 $ip > /dev/null
+  if [[ $? -eq 0 ]]; then
+    WORKER_IP_LIST+=("$ip")
+  fi
 done
 
-# Sanity Check -- Echo IP_LIST and check if we at least have the right number of nodes/last node
-
-echo "IP list:"
-for ip in "${IP_LIST[@]}"; do
+# Echo the worker IPs that are pingable
+echo "Number of worker IPs that are pingable: ${#WORKER_IP_LIST[@]}"
+echo "Worker IPs that are pingable:"
+for ip in "${WORKER_IP_LIST[@]}"; do
   echo "$ip"
 done
 
-# Check if we have the right number of nodes
-echo "Number of workers: $NUM_WORKERS"
-echo "Number of clients: $NUM_CLIENTS"
+# Check which of the expected client IPs are pingable
+EXPECTED_CLIENT_IP_LIST=()
+for ((i=1; i<=NUM_CLIENTS; i++)); do
+  IP="10.10.1.$((100+NUM_WORKERS+i))"
+  EXPECTED_CLIENT_IP_LIST+=("$IP")
+done
 
-last_index=$(( ${#IP_LIST[@]} - 1 ))
-last_element="${IP_LIST[last_index]}"
+CLIENT_IP_LIST=()
 
-# Perform arithmetic operation outside of the string
-expected_ip=$((100 + NUM_WORKERS + NUM_CLIENTS))
-expected_ip="10.10.1.$expected_ip"
+for ip in "${EXPECTED_CLIENT_IP_LIST[@]}"; do
+  ping -c 1 -W 1 $ip > /dev/null
+  if [[ $? -eq 0 ]]; then
+    CLIENT_IP_LIST+=("$ip")
+  fi
+done
 
-if [ "$last_element" != "$expected_ip" ]; then
-  echo "dynamic IP assignment failed."
-  exit 2
-fi
+# Echo the client IPs that are pingable
+echo "Number of client IPs that are pingable: ${#CLIENT_IP_LIST[@]}"
+echo "Client IPs that are pingable:"
+for ip in "${CLIENT_IP_LIST[@]}"; do
+  echo "$ip"
+done
 
-# IP Addresses should be hardcoded by the profile
-# MASTER_IP=10.10.1.100
-# WORKER1_IP=10.10.1.101
-# WORKER2_IP=10.10.1.102
-# WORKER3_IP=10.10.1.103
-# CLIENT_IP=10.10.1.104
 
 # Hostname cannot reliably be used to identify cluster since it only seems to include the cluster for the master node
 
@@ -71,15 +80,6 @@ if [[ -z $HWTYPE ]]; then
   exit 1
 fi
 
-# Try to ping every IP address in the cluster and exit with an error if any fail
-# for IP in $MASTER_IP $WORKER1_IP $WORKER2_IP $WORKER3_IP $CLIENT_IP; do
-for IP in "${IP_LIST[@]}"; do
-  ping -c 1 -W 1 $IP > /dev/null
-  if [[ $? -ne 0 ]]; then
-    echo "Error: Could not ping $IP"
-    exit 1
-  fi
-done
 
 sudo mkdir -p /$DIRNAME
 cd /$DIRNAME
@@ -175,7 +175,7 @@ sudo cp "$hadoop_workers_file" "$hadoop_workers_file.backup"
 # echo "$WORKER3_IP" | sudo tee -a "$hadoop_workers_file"
 # Start from 1 to exclude the MASTER_IP
 for ((i=1; i<=NUM_WORKERS; i++)); do
-  ip="${IP_LIST[i]}"
+  ip="${WORKER_IP_LIST[i]}"
   if ((i == 1)); then
     echo "$ip" | sudo tee "$hadoop_workers_file"
   else
