@@ -44,6 +44,12 @@ pc.defineParameter("sameSwitch",  "Same Switch", portal.ParameterType.BOOLEAN, T
                     advanced=True,
                     longDescription="Require all nodes to be on the same switch. This can make it impossible for your experiment to map.")
 
+pc.defineParameter("bestEffort",  "Best Effort", portal.ParameterType.BOOLEAN, False,
+                    advanced=True,
+                    longDescription="For very large lans, you might get an error saying 'not enough bandwidth.' " +
+                    "This options tells the resource mapper to ignore bandwidth and assume you know what you " +
+                    "are doing, just give me the lan I ask for (if enough nodes are available). This reduces replicability.")
+
 # Start VNC, why not
 # "There will be a menu option in the node context menu to start a browser based VNC client"
 startVNC = True
