@@ -32,6 +32,8 @@ for ((i=0; i<$WRITE_COUNT; i++)); do
 done
 end_time=$(date +%s%3N)
 write_time=$((end_time - start_time))
+echo "===== Start time (ms): $start_time"
+echo "===== End time (ms): $end_time"
 echo "===== Write time (ms): $write_time"
 
 # Clean up the temporary file
