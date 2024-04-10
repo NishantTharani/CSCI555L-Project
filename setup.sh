@@ -174,6 +174,9 @@ sudo cp "$hadoop_workers_file" "$hadoop_workers_file.backup"
 # echo "$WORKER2_IP" | sudo tee -a "$hadoop_workers_file"
 # echo "$WORKER3_IP" | sudo tee -a "$hadoop_workers_file"
 # Start from 1 to exclude the MASTER_IP
+# Clear the current contents of the file
+sudo > "$hadoop_workers_file"
+# Add the worker IPs
 for ip in "${WORKER_IP_LIST[@]}"; do
   echo "$ip" | sudo tee -a "$hadoop_workers_file"
 done
