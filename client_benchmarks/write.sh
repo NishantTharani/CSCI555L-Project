@@ -13,9 +13,10 @@ read -p "Enter the size of each write (in MB): " WRITE_SIZE
 # Read the name of this node from /tmp/name.txt
 node_name=$(cat /tmp/name.txt)
 
-# Create a new file in HDFS
-file_path="/write/test_file"
+# Create a new file in HDFS using the node name
+file_path="/write/"$node_name
 sudo hdfs dfs -mkdir -p /write
+sudo hdfs dfs -rm $file_path
 sudo hdfs dfs -touchz $file_path
 
 # Write 100 MB to the file in distinct 1 MB writes
