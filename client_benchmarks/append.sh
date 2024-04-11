@@ -2,8 +2,9 @@
 
 generate_random_data() {
   rm -f temp_file
-  BS=$((1048576*$1))
-  dd if=/dev/urandom of=temp_file bs=$BS count=1
+  # BS=$((1048576*$1))
+  BS=1048576
+  dd if=/dev/urandom of=temp_file bs=$BS count=$1
 }
 
 # Read parameters from user input
