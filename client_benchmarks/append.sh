@@ -17,6 +17,7 @@ node_name=$(cat /tmp/name.txt)
 # Create a new file in HDFS
 file_path="/append/append_file"
 sudo hdfs dfs -mkdir -p /append
+sudo hdfs dfs -rm $file_path
 sudo hdfs dfs -touchz $file_path
 
 # Record append 1 MB to the file, 50 times
