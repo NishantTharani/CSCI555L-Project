@@ -1,0 +1,134 @@
+- Testing on rs630:
+  - Can't get them all on the same link
+  - When trying to provision 29/30 available nodes, not enough bandwidth
+  - https://groups.google.com/g/cloudlab-users/c/7uMoFs9bENA - "If you do not intend to saturate this lan, try adding best effort to the link"
+  - Managed to provision 16 workers and 8 clients
+    - But one of them didn't get an experiment IP
+  - Tried again with 8 workers and 8 clients, but again one of them didn't get an experiment IP
+  - Can use `ib_send_bw -F --report_gbits -d mlx5_2` to test the bandwidth
+    - `-d mlx5_2` specifies which NIC device to use
+    - This only works for Infiniband devices
+  - Bandwidth test with iperf3:
+    - Run `iperf3 -s` on the server
+    - Then `iperf3 -c [server_ip]` on the client to test bandwidth between client/server
+    - Got 9.4 Gbps on rs630
+  - So rs630 not working because one of the nodes consistently doesn't get an experimental IP allocated
+    - Investigating further
+    - https://groups.google.com/g/cloudlab-users/c/OUDH1Jt-MSU/m/j5MUMri-AgAJ - someone had a similar issue on another node
+    - Looking at the node itself that's not working for me, in this case https://www.cloudlab.umass.edu/portal/show-node.php?node_id=pc12 , it shows the NIC as connected
+    - Trying to power cycle this node...didn't work
+    - Trying to reboot...didn't work
+    - Then will try to reload...didn't work
+  - If no luck, then we can rework setup.sh script to handle this gracefully:
+    - This seems to work
+    - Now ran it and got 8 worker nodes and 7 client nodes that are pingable
+  - Another bug: the scripts don't always execute, so need to manually check that they did
+  - OK, got 8 worker nodes and 7 client nodes set up
+    - Bandwidths to server using iperf3:
+      - client_1: 9.42 Gbps
+      - client_2: this is the faulty one
+      - client_3: 9.42 Gbps
+      - client_4: 9.42 Gbps
+      - client_5: 9.40 Gbps
+      - client_6: 9.40 Gbps
+      - client_7: 9.42 Gbps
+      - client_8: 9.42 Gbps
+    - Latency to master using ping -c with 10 samples
+      - client_1: `rtt min/avg/max/mdev = 0.030/0.035/0.049/0.005 m`
+      - client_3: `rtt min/avg/max/mdev = 0.034/0.039/0.059/0.007 ms`
+      - client_4: `rtt min/avg/max/mdev = 0.068/0.071/0.081/0.003 ms`
+      - client_5: `rtt min/avg/max/mdev = 0.071/0.074/0.084/0.003 ms`
+      - client_6: `rtt min/avg/max/mdev = 0.059/0.072/0.081/0.006 ms`
+      - client_7: `rtt min/avg/max/mdev = 0.030/0.037/0.049/0.007 ms`
+      - client_8: `rtt min/avg/max/mdev = 0.030/0.035/0.047/0.005 m`
+    - Bandwidth from master to worker nodes:
+      - worker_1: `rtt min/avg/max/mdev = 0.034/0.047/0.060/0.006 ms`
+      - 2: `rtt min/avg/max/mdev = 0.030/0.037/0.042/0.003 ms`
+      - 3: `rtt min/avg/max/mdev = 0.038/0.041/0.051/0.004 ms`
+      - 4: `rtt min/avg/max/mdev = 0.035/0.043/0.057/0.007 ms`
+      - 5: `rtt min/avg/max/mdev = 0.029/0.039/0.053/0.006 ms`
+      - 6: `rtt min/avg/max/mdev = 0.031/0.041/0.053/0.007 ms`
+      - 7: `rtt min/avg/max/mdev = 0.066/0.068/0.071/0.001 ms`
+      - 8: `rtt min/avg/max/mdev = 0.036/0.043/0.062/0.007 ms`
+    - Latency from master to worker nodes using ping -c with 10 samples
+    - Synchronized the start of the writing tests by using iTerm2 feature to press enter at the same time on all sessions
+    - 1 client (1)
+      - Writing: 100MB, 1MB at a time, took 202.549 seconds
+    - 2 clients (1, 3)
+      - Each writing: 100MB, 1MB at a time, took 201.861 seconds
+    - 3 clients (1, 3, 4)
+      - Each writing: 100MB, 1MB at a time, took 201.598 seconds
+    - 4 clients (1, 3, 4, 5)
+      - Each writing: 100MB, 1MB at a time, took 231.828 seconds
+        - The first three clients were done in 202.448 seconds (total)
+        - But the fourth (client_5) took the rest of the time
+    - 5 clients (1, 3, 4, 5, 6)
+      - Each writing 100MB, 1MB at a time, 237.678 seconds
+        - The first 3 were done in 203.129 seconds
+        - The last two took the rest of the time
+    - 6 clients (1, 3, 4, 5, 6, 7)
+      - Each writing 100MB, 1MB at a time, 232.102 seconds
+        - 1,3,4,7 were done in 201.717 seconds
+    - 7 clients (1, 3, 4, 5, 6, 7, 8)
+      - Each writing 100MB, 1MB at a time
+      - 233.786 seconds
+      - 1,3,4,7,8 were done in 201.501 seconds
+    - Just client_8, writing 100MB, 1MB at a time: 182.461 seconds
+    - client_1, different chunk sizes:
+      - 100MB, 2MB at a time: 100.462 seconds
+      - 200MB, 4MB at a time: 100.896 seconds
+      - 200MB, 5MB at a time: 81.143 seconds
+      - 500MB, 10MB at a time: 102.224 seconds
+      - 1000MB, 20MB at a time: 104.146
+      - 2000MB, 40MB at a time: 107.806
+      - 2500MB, 50MB at a time: 110.188
+      - 5000MB, 100MB at a time: 117.696
+      - 10,000MB, 200MB at a time: 132.842
+      - 25,000MB, 500MB at a time: 177.251
+      - 50,000MB, 1000MB at a time: 248.947
+    - observations so far:
+      - some clients take way longer than others. higher latency means worse time?
+      - scales pretty linearly with clients up to 7: bandwidth not the bottleneck
+      - also scales linearly with one client and write size, up to X MB:
+      - seems like latency is the bottleneck at lower chunk sizes? so our network setup has more latency than the original paper?
+    - now try multiple clients with the larger chunk size, say 50MB
+      - 2 clients:
+        - client 1, client 3
+        - each write 2500MB, 50MB at a time
+        - 110.969 seconds
+      - 4 clients:
+        - client 1, 3, 4, 7
+        - each write 2500 MB, 50MB at a time
+        - 110.405 seconds
+      - 5 clients:
+        - client 1, 3, 4, 7, 8
+        - each write 2500MB, 50MB at a time
+        - 110.421 seconds
+      - 7 clients:
+        - client 1, 3, 4, 5, 6, 7
+        - each write 2500MB, 50MB at a time
+          - 126.869 seconds
+        - each write 50x250MB, 250MB at a time
+          - 160.229 seconds
+        - each write 50x500MB, 500MB at a time
+          - 239.449 seconds
+- Theoretical max calculations
+  - In original paper:
+    - Reads:
+      - 125 MB/s limit because this saturates the 1Gbps link between the two switches (clients and workers)
+      - Also 12.5 MB/s per client, because this saturates a given client's 100 Mbps NIC
+      - Whichever binds first
+      - In reality: 10 MB/s with one client, 94 MB/s aggregate. Efficiency drops from 80% with one client to 75% in aggregate because the probability that multiple readers read from the same chunkserver increases
+    - Writes:
+      - With one client: seems like 12.5 MB/s. For the same reason
+      - Aggregate: 67 MB/s. This is because each byte needs to be written to 3 of the 16 chunkservers, each of which has a 12.5 MB/s input connection. So the limit imposed by this is `(16/3) * 12.5` which binds before the 1 Gbps link is saturated
+      - In reality: reaches 35 MB/s at 16 clients, because it becomes more likely that multiple clients need to write concurrently to the same chunkserver
+    - Record appends:
+      - Theoretical limit is 12.5 MB/s because we're limited by the bandwidth of the chunkservers that stored the last chunk, independent of the number of clients
+- What did we see in rs630 write tests?
+  - Theoretical max:
+    - One client: Seems like 1175 MB/s because this is 9.4 Gbps
+    - Many clients: aggregate limit is 3133 MB / s if we follow the paper's methodology. But is there a switch whose bandwidth may be saturated first?
+  - Actual:
+    - With one client: we got to 200 MB/s with a high chunk size. Maybe we are limited by other things now? But could have increased chunk size.
+    - Many clients: we got to 729 MB/s. But again could have increased chunk size
