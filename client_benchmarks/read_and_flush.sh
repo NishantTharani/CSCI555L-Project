@@ -23,8 +23,9 @@ for ((i=0; i<$READ_COUNT; i++)); do
   if [[ $((i % 10)) == 0 ]]; then
     echo "===== Read $i out of $READ_COUNT"
   fi
-  sudo hdfs dfs -cat $file_path"_"$((RANDOM % $READ_SETUP_COUNT)) > /dev/null
   echo 3 | sudo tee /proc/sys/vm/drop_caches
+  sudo hdfs dfs -cat $file_path"_"$((RANDOM % $READ_SETUP_COUNT)) > /dev/null
+  
 done
 end_time=$(date +%s%3N)
 read_time=$((end_time - start_time))
